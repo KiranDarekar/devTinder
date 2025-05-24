@@ -3,30 +3,43 @@ const express = require('express');
 
 const app = express();
 
-// app.use("/", (req, res)=>{
-//     res.send('hello 2 started responding');
-// });
+// app.get('/:file{.:ext}', (req, res) => {
+//     const params = Object.assign({}, req.params);
+//     console.log(params);
+//     res.status(200).send({ name: 'Ruben' })
+// })
 
-// this will only handle get call /user
-app.get("/user", (req, res)=>{
-    res.send({
-        firstName: "Kiran"
-    });
-});
-
-// this call will save data to post call /user
-app.post("/user", (req, res)=>{
-    console.log('saving the data to DB');
-    res.send("Data has been succefully save in DB");
-});
-
-// this call will save data to post call /user
-app.delete("/user", (req, res)=>{
-    console.log('deleted the data from DB');
-    res.send("Data has been succefully deleted in DB");
-});
-
+app.get('/user', 
+    [(req, res, next) => {
+        console.log('inside handler');
+        // res.send('route handler');
+        next();
+    },
+    (req, res, next) => {
+        console.log('inside handler 2');
+        // res.send('route handler 2');
+        next();
+    },
+    (req, res, next) => {
+        console.log('inside handler 3');
+        // res.send('route handler 3');
+        next();
+    },
+    (req, res, next) => {
+        console.log('inside handler 4');
+        res.send('route handler 4');
+    },
+    (req, res, next) => {
+        console.log('inside handler 5');
+        res.send('route handler 5');
+    }]
+);
 
 app.listen(3000, ()=>{
     console.log('server is listening on 3000');
+}, (error) => {
+  if (error) {
+    throw error // e.g. EADDRINUSE
+  }
+  console.log(`Listening on ${JSON.stringify(error)}`)
 });

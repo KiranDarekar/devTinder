@@ -53,22 +53,75 @@ app.get('/user', async (req, res) => {
 
 });
 
+// delete user by email
+app.delete('/user', async (req, res) => {
+    const userEmailId = req.body.emailId;
+    console.log(userEmailId);
+    try {
+        const userdetails = await User.findOneAndDelete({ emailId : userEmailId });
+
+        if(userdetails.length === 0) {
+            res.status(404).send("User not found");
+        } else {
+            res.send(userdetails);
+        }
+        
+    } catch {
+        res.status(400).send("User not found");
+    }
+
+});
+
+// modify the data of user by email
+app.patch('/user', async (req, res) => {
+    const userId = req.body.userId;
+    const data  = req.body;
+    
+    try {
+        const userdetails = await User.findByIdAndUpdate(userId, data);
+
+        if(userdetails.length === 0) {
+            res.status(404).send("User not found");
+        } else {
+            res.send(userdetails);
+        }
+        
+    } catch {
+        res.status(400).send("User not found");
+    }
+
+});
+
 app.post("/signup", async (req, res) => {
     const user = new User(req.body);
     try {
         await user.save();
         res.send("user added succesfully !!!");
-    } catch (error) {
+    } catch {
         res.status(400).send("user added succesfully !!!");
     }
 
 });
 
-// app.use('/', (error, req, res, next) => {
-//     if(error){
-//         res.status(500).send("something went wrong");
-//     }
-// });
+app.post("/bulkupdate", async (req, res) => {
+    const updates = req.body;
+    try {
+
+       const result = await User.bulkWrite(updates);
+       console.log('Bulk update result:', result);
+       res.status(200).send("Bulk update successful");
+    } catch (err) {
+        console.error('Bulk update error:', err);
+        res.status(400).send("Bulk update did not work as expected");
+    }
+
+});
+
+app.use('/', (error, req, res, next) => {
+    if(error){
+        res.status(500).send("something went wrong");
+    }
+});
 
 connectDb().then(() => {
     console.log('Database has been successfuly connected.');

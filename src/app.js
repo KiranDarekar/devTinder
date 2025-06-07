@@ -83,15 +83,17 @@ app.patch('/user/:userId', async (req, res) => {
             "gender",
             "photoUrl",
             "skills",
-            "about"
+            "about",
+            "password",
+            "emailId"
         ];
         const isUpdateAllowed  = Object.keys(data).every((k) => ALLOWEDUPDATES.includes(k) );
         console.log('isUpdateAllowed', isUpdateAllowed);
         if(!isUpdateAllowed) {
             throw new Error("update not allowed as it has the dublicate data");
         }
-        console.log('skills ', data?.skills.length);
-        if(data?.skills.length > 10){
+        console.log('skills ', data?.skills?.length);
+        if(data?.skills?.length > 10){
             throw new Error("you can not add more data");
         }
         const userdetails = await User.findByIdAndUpdate({_id: userId}, data,{

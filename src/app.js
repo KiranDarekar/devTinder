@@ -73,12 +73,28 @@ app.delete('/user', async (req, res) => {
 });
 
 // modify the data of user by email
-app.patch('/user', async (req, res) => {
-    const userId = req.body.userId;
+app.patch('/user/:userId', async (req, res) => {
+    const userId = req.params?.userId;
     const data  = req.body;
     
     try {
-        const userdetails = await User.findByIdAndUpdate(userId, data,{
+        const ALLOWEDUPDATES = [
+            "age",
+            "gender",
+            "photoUrl",
+            "skills",
+            "about"
+        ];
+        const isUpdateAllowed  = Object.keys(data).every((k) => ALLOWEDUPDATES.includes(k) );
+        console.log('isUpdateAllowed', isUpdateAllowed);
+        if(!isUpdateAllowed) {
+            throw new Error("update not allowed as it has the dublicate data");
+        }
+        console.log('skills ', data?.skills.length);
+        if(data?.skills.length > 10){
+            throw new Error("you can not add more data");
+        }
+        const userdetails = await User.findByIdAndUpdate({_id: userId}, data,{
             runValidators:true
         });
 
@@ -88,8 +104,8 @@ app.patch('/user', async (req, res) => {
             res.send(userdetails);
         }
         
-    } catch {
-        res.status(400).send("User not found");
+    } catch (error) {
+        res.status(400).send(error.message);
     }
 
 });

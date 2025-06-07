@@ -78,7 +78,9 @@ app.patch('/user', async (req, res) => {
     const data  = req.body;
     
     try {
-        const userdetails = await User.findByIdAndUpdate(userId, data);
+        const userdetails = await User.findByIdAndUpdate(userId, data,{
+            runValidators:true
+        });
 
         if(userdetails.length === 0) {
             res.status(404).send("User not found");
@@ -97,8 +99,8 @@ app.post("/signup", async (req, res) => {
     try {
         await user.save();
         res.send("user added succesfully !!!");
-    } catch {
-        res.status(400).send("user added succesfully !!!");
+    } catch (error) {
+        res.status(400).send(error.errors.phone.message);
     }
 
 });

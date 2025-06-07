@@ -2,7 +2,7 @@ const express = require('express');
 const connectDb = require('./config/database');
 const app = express();
 const User = require('./models/user');
-const { validateSignUpData }  = require('./utils/validation');
+const { validateSignUpData, validateEmailId }  = require('./utils/validation');
 const bcrypt = require('bcrypt');
 
 // middle ware for converting all request into json format
@@ -114,6 +114,7 @@ app.patch('/user/:userId', async (req, res) => {
 
 });
 
+// sign up api
 app.post("/signup", async (req, res) => {
     
     console.log('sign up in......')
@@ -136,6 +137,37 @@ app.post("/signup", async (req, res) => {
         });
         await user.save();
         res.send("user added succesfully !!!");
+    } catch (error) {
+        res.status(400).send("ERROR : " + error.message);
+    }
+
+});
+
+// login api
+app.post("/login", async (req, res) => {
+    
+    console.log('login in......')
+    try {
+        const { emailId, password } = req.body;
+        // validate login data
+        validateEmailId(req);
+
+        // check email is there OR not in DB
+        const userDetails = await User.findOne({ emailId: emailId});
+
+        if(!userDetails){
+            throw new Error("Invalid Credentials !!!");
+        }
+        console.log("password ", password);
+        // Load hash from your password DB.
+        const passwordHash = await bcrypt.compare(password, userDetails.password);
+        console.log("passwordHash ", passwordHash);
+        if(passwordHash) {
+            res.send("login is succesfully !!!");
+        } else {
+            throw new Error("Invalid Credentials !!!");
+        }
+
     } catch (error) {
         res.status(400).send("ERROR : " + error.message);
     }

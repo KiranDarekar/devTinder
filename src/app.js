@@ -3,13 +3,17 @@ const connectDb = require('./config/database');
 const app = express();
 const User = require('./models/user');
 const { validateSignUpData, validateEmailId }  = require('./utils/validation');
-const bcrypt = require('bcrypt');
 
-// middle ware for converting all request into json format
+const cookieParser = require('cookie-parser');
+
+const { userAuth } = require('./middlewares/auth');
+const user = require('./models/user');
+
+// middle ware for converting all request into json format.
 app.use(express.json());
+// this is essential will only give the response for next request.
+app.use(cookieParser()); 
 
-const { adminAuth, userAuth } = require('./middlewares/auth');
-app.use('/admin', adminAuth);
 
 app.get('/admin/getAllUserData', (req, res, next) => {
     res.send('get all user data sent');
@@ -160,9 +164,20 @@ app.post("/login", async (req, res) => {
         }
         console.log("password ", password);
         // Load hash from your password DB.
-        const passwordHash = await bcrypt.compare(password, userDetails.password);
+        const passwordHash = await userDetails.validatePassword(password);
         console.log("passwordHash ", passwordHash);
         if(passwordHash) {
+
+            // create JWT token
+            const token = await userDetails.getJWT();
+
+            // add token to cookie and send the response back to the user
+            res.cookie('token', token,
+                { 
+                    expires: new Date(Date.now() + 900000)
+
+                }
+            );
             res.send("login is succesfully !!!");
         } else {
             throw new Error("Invalid Credentials !!!");
@@ -170,6 +185,19 @@ app.post("/login", async (req, res) => {
 
     } catch (error) {
         res.status(400).send("ERROR : " + error.message);
+    }
+
+});
+
+
+// get user by email
+app.get('/profile', userAuth, async (req, res) => {
+    
+    try {
+        console.log("in -- profile");
+        res.send(req.user);
+    } catch {
+        res.status(400).send("User not found");
     }
 
 });

@@ -20,7 +20,28 @@ const validateEmailId = (req) => {
     }
 }
 
+const validateEditProfileData  = (req) => {
+        const ALLOWEDUPDATES = [
+            "age",
+            "gender",
+            "photoUrl",
+            "skills",
+            "about",
+        ];
+        const isUpdateAllowed  = Object.keys(req.body).every((k) => ALLOWEDUPDATES.includes(k) );
+        console.log('isUpdateAllowed -', !isUpdateAllowed);
+
+        if(!isUpdateAllowed){
+            throw new Error("invalid payload info request");
+        }
+        console.log('skills ', req.body?.skills?.length);
+        if(req.body?.skills?.length > 10){
+            throw new Error("you can not add more data");
+        }
+        return isUpdateAllowed;
+}
 module.exports = {
     validateSignUpData,
     validateEmailId,
+    validateEditProfileData
 }

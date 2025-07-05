@@ -10,14 +10,12 @@ patch /profile/edit
 patch /profile/password
 
 # connection router status: ignore. intrested, accpeted, rejected
-post /request/send/ignored/:userId
-post /request/send/interested/:userId
-post /request/send/accpeted/:userId
-post /request/send/rejected/:userId
+post /request/send/:status/:userId
+post /request/send/:status/:requestId
 
 # user connection router
 post /user/connections
 GET /user/requests/ received
 GET /user/feed
 
-
+POST VS GET

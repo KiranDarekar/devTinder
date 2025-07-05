@@ -57,39 +57,46 @@ requestRouter.post('/request/send/:status/:toUserId', userAuth, async (req, res)
     
 });
 
-requestRouter.get('/admin/deleteAllUserData', (req, res, next) => {
-    res.send('delete all user data sent');
-});
-
-// feed API  - get  all the user from deta database
-requestRouter.get('/feed', async (req, res) => {
+requestRouter.post('/request/review/:status/:requestId', userAuth, async (req, res) => {
     try {
-        const userdetails = await User.find({});
-
-        if(userdetails.length === 0) {
-            res.status(404).send("User not found");
-        } else {
-            res.send(userdetails);
+        const loggedInUser = req.user;
+        const { status, requestId } = req.params;
+        console.log("login in user -", loggedInUser._id);
+        console.log(requestId);
+        // allowed connection request 
+        const allowedStatus = ["accepted", "rejected"];
+        console.log(!allowedStatus.includes(status));
+        if(!allowedStatus.includes(status)){
+            return res.status(400).json({
+                message: " Status is not allowed: " + status
+            })
         }
         
-    } catch {
-        res.status(400).send("User not found");
-    }
+        // check the connection in DB request 
+        const checkInterestedRequest = await ConnectionRequestModel.findOne({
+            _id:requestId,
+            toUserId: loggedInUser._id,
+            status:'interested'
+        });
+        if(!checkInterestedRequest){
+            return res.status(400).json({
+                message: "Connection request not found: " + status
+            })
+        }
 
+        // assign the status which we are getting 
+        checkInterestedRequest.status = status;
+        const data = await checkInterestedRequest.save();
+        res.json({
+            message: req.user.firstName + "is" + status + "in" + toUserId.firstName,
+            data
+        });
+    } catch (error) {
+        res.status(400).send("ERROR: "  + error.message);
+    }
+    
+    
 });
 
-
-requestRouter.post("/bulkupdate", async (req, res) => {
-    const updates = req.body;
-    try {
-       const result = await User.bulkWrite(updates);
-       console.log('Bulk update result:', result);
-       res.status(200).send("Bulk update successful");
-    } catch (err) {
-        console.error('Bulk update error:', err);
-        res.status(400).send("Bulk update did not work as expected");
-    }
-
-});
 
 module.exports = requestRouter;

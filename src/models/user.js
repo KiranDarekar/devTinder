@@ -71,11 +71,13 @@ const userSchema = new mongoose.Schema({
     timestamps:true
 });
 
+userSchema.index({firstName:1, lastName:1});
+
 userSchema.methods.getJWT = async function () {
     const user = this;
 
     // create JWT token
-    const token = await jwt.sign({ _id : user._id}, "Dev@Tinder007", { expiresIn: '1h'});
+    const token = await jwt.sign({ _id : user._id}, "Dev@Tinder007", { expiresIn: '10h'});
 
     return token;
 }

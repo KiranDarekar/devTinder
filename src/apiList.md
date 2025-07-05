@@ -11,7 +11,7 @@ patch /profile/password
 
 # connection router status: ignore. intrested, accpeted, rejected
 post /request/send/ignored/:userId
-post /request/send/intrested/:userId
+post /request/send/interested/:userId
 post /request/send/accpeted/:userId
 post /request/send/rejected/:userId
 

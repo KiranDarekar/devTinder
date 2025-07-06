@@ -63,8 +63,9 @@ userRouter.get('/feed', userAuth, async (req, res) => {
     try{
         const loggedInUser = req.user;
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
+        let limit = parseInt(req.query.limit) || 10;
         const skip =  (page - 1) * limit;
+        limit = limit > 50 ? 50 : limit;
 
         // user should see all interested profile and user not send any request self,
         // should not see ignored profile

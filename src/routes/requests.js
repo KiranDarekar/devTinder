@@ -1,7 +1,6 @@
 const express  = require('express');
 const requestRouter  = express.Router();
 const { userAuth } = require('../middlewares/auth');
-const User = require('../models/user');
 const ConnectionRequestModel = require('../models/connectionRequest');
 const user = require('../models/user');
 const { default: mongoose } = require('mongoose');

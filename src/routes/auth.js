@@ -22,8 +22,30 @@ authRouter.post("/signup", async (req, res) => {
             emailId,
             password: passwordHash
         });
-        await user.save();
-        res.send("user added succesfully !!!");
+        const savedUser = await user.save();
+
+        // check email is there OR not in DB
+        const userDetails = await User.findOne({ emailId: emailId});
+
+        if(!userDetails){
+            throw new Error("Invalid Credentials !!!");
+        }
+        console.log("password ", password);
+        
+        // create JWT token
+        const token = await userDetails.getJWT();
+
+        // add token to cookie and send the response back to the user
+        res.cookie('token', token,
+            { 
+                expires: new Date(Date.now() + 900000)
+
+            }
+        );
+
+        res.send({ message: "user added succesfully !!!",
+            data: savedUser
+        });
     } catch (error) {
         res.status(400).send("ERROR : " + error.message);
     }
